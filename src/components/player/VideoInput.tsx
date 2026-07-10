@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TextField, IconButton, InputAdornment } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
 import { useTranslation } from '../../utils/i18n';
+import Icon from '../common/Icon';
 
 interface Props {
   onSend: (url: string) => void;
@@ -35,7 +35,7 @@ export default function VideoInput({ onSend }: Props) {
           endAdornment: (
             <InputAdornment position="end">
               <IconButton size="small" onClick={handleSend} disabled={!url.trim()}>
-                <SendIcon fontSize="small" />
+                <Icon name="search" size={16} sx={{ opacity: 0.5 }} />
               </IconButton>
             </InputAdornment>
           ),

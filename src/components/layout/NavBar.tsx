@@ -1,8 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Paper } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
-import AddIcon from '@mui/icons-material/Add';
-import PersonIcon from '@mui/icons-material/Person';
+import Icon from '../common/Icon';
 import { createRoom } from '../../api/rooms';
 
 export default function NavBar() {
@@ -41,9 +39,9 @@ export default function NavBar() {
   };
 
   const tabs = [
-    { id: 'home', icon: <HomeIcon sx={{ fontSize: 26 }} /> },
-    { id: 'add', icon: <AddIcon sx={{ fontSize: 32 }} />, isAdd: true },
-    { id: 'profile', icon: <PersonIcon sx={{ fontSize: 26 }} /> },
+    { id: 'home', icon: <Icon name="home" size={20} /> },
+    { id: 'add', icon: <Icon name="plus_in_circle" size={24} />, isAdd: true },
+    { id: 'profile', icon: <Icon name="user" size={20} /> },
   ];
 
   return (

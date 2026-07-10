@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { getMe } from './api/users';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -22,17 +22,24 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { token, setAuth, user } = useAuthStore();
+  const token = useAuthStore((s) => s.token);
+  const user = useAuthStore((s) => s.user);
+  const fetchedRef = useRef(false);
 
   useEffect(() => {
-    if (token && !user) {
+    if (token && !user && !fetchedRef.current) {
+      fetchedRef.current = true;
       getMe()
         .then((res) => {
           useAuthStore.getState().setAuth(res.data, token);
         })
         .catch(() => {
+          fetchedRef.current = false;
           useAuthStore.getState().logout();
         });
+    }
+    if (!token) {
+      fetchedRef.current = false;
     }
   }, [token, user]);
 

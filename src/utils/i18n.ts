@@ -140,7 +140,7 @@ interface LangState {
 }
 
 export const useLangStore = create<LangState>((set, get) => ({
-  lang: (localStorage.getItem('lang') as Lang) || 'en',
+  lang: (localStorage.getItem('lang') as Lang) || 'ru',
   setLang: (lang: Lang) => {
     localStorage.setItem('lang', lang);
     set({ lang });

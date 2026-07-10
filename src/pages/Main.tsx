@@ -4,9 +4,7 @@ import {
   Box, TextField, Typography, Card, CardMedia, CardContent, Chip,
   InputAdornment, Skeleton,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import PeopleIcon from '@mui/icons-material/People';
+import Icon from '../components/common/Icon';
 import ProtectedLayout from '../components/common/ProtectedLayout';
 import TopBar from '../components/common/TopBar';
 import { listRooms, joinRoom } from '../api/rooms';
@@ -40,7 +38,7 @@ function RoomCard({ room, onClick }: { room: Room; onClick: () => void }) {
         />
         {room.video_duration > 0 && (
           <Chip
-            icon={<AccessTimeIcon sx={{ fontSize: 14 }} />}
+            icon={<Icon name="access_time" size={12} sx={{ opacity: 0.5 }} />}
             label={formatDuration(room.video_duration)}
             size="small"
             sx={{
@@ -68,7 +66,7 @@ function RoomCard({ room, onClick }: { room: Room; onClick: () => void }) {
           {room.name || 'Unnamed Room'}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-          <PeopleIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+          <Icon name="people" size={12} sx={{ opacity: 0.5 }} />
           <Typography variant="caption" color="text.secondary">
             {room.participants?.length || 0}
           </Typography>
@@ -120,7 +118,7 @@ export default function Main() {
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
+                  <Icon name="search" size={18} sx={{ opacity: 0.4 }} />
                 </InputAdornment>
               ),
             },

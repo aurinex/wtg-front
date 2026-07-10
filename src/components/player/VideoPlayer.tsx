@@ -1,5 +1,6 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { Box } from '@mui/material';
+import { useEffect, useRef } from 'react';
+import { Box, Button, Typography } from '@mui/material';
+import Icon from '../common/Icon';
 import { useTranslation } from '../../utils/i18n';
 
 interface Props {
@@ -12,6 +13,63 @@ interface Props {
   onPause?: (time: number) => void;
   onSeek?: (time: number) => void;
   onReady?: () => void;
+}
+
+function parseVkVideoId(url: string): { oid: string; id: string } | null {
+  const classic = url.match(/vk\.(?:com|ru)\/video(-?\d+)_(\d+)/);
+  if (classic) return { oid: classic[1], id: classic[2] };
+  const newDom = url.match(/vkvideo\.ru\/video(-?\d+)_(\d+)/);
+  if (newDom) return { oid: newDom[1], id: newDom[2] };
+  return null;
+}
+
+function getPlatformUrl(platform: string, videoUrl: string): string | null {
+  if (!videoUrl) return null;
+
+  switch (platform) {
+    case 'youtube': {
+      const m = videoUrl.match(/(?:v=|\/)([\w-]{11})/);
+      return m ? `https://www.youtube.com/embed/${m[1]}?enablejsapi=1&autoplay=0&controls=1` : null;
+    }
+    case 'vk': {
+      const vk = parseVkVideoId(videoUrl);
+      if (vk) return `https://vk.com/video_ext.php?oid=${vk.oid}&id=${vk.id}&embed=1`;
+      return videoUrl;
+    }
+    case 'twitch': {
+      const ch = videoUrl.match(/(?:twitch\.tv\/)(\w+)/);
+      if (ch) return `https://player.twitch.tv/?channel=${ch[1]}&parent=localhost`;
+      const v = videoUrl.match(/(?:twitch\.tv\/videos\/)(\d+)/);
+      if (v) return `https://player.twitch.tv/?video=${v[1]}&parent=localhost`;
+      return videoUrl;
+    }
+    case 'web':
+      return videoUrl;
+    default:
+      return videoUrl;
+  }
+}
+
+function ExtractPlaceholder({ platform, videoUrl }: { platform: string; videoUrl: string }) {
+  return (
+    <Box sx={{
+      width: '100%', aspectRatio: '16/9', bgcolor: '#0a0a14', borderRadius: 1,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+      border: '1px solid', borderColor: 'divider',
+    }}>
+      <Typography variant="body2" color="text.secondary" textAlign="center">
+        Встраивание {platform} заблокировано
+      </Typography>
+      <Button
+        variant="contained" size="small"
+        startIcon={<Icon name="open_in_new" size={16} />}
+        onClick={() => window.open(videoUrl, '_blank')}
+        sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600 }}
+      >
+        Открыть в {platform}
+      </Button>
+    </Box>
+  );
 }
 
 export default function VideoPlayer({
@@ -36,37 +94,6 @@ export default function VideoPlayer({
   onTimeUpdateRef.current = onTimeUpdate;
   onReadyRef.current = onReady;
 
-  const getEmbedUrl = useCallback(() => {
-    if (!videoUrl) return '';
-
-    switch (platform) {
-      case 'youtube': {
-        const match = videoUrl.match(/(?:v=|\/)([\w-]{11})/);
-        if (match) return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1&autoplay=0&controls=1`;
-        return '';
-      }
-      case 'vk': {
-        if (videoUrl.includes('vk.com')) {
-          const idMatch = videoUrl.match(/video(-?\d+_\d+)/);
-          if (idMatch) return `https://vk.com/video_ext.php?oid=${idMatch[1]}&embed=1`;
-        }
-        if (videoUrl.includes('video_ext.php')) return videoUrl;
-        return videoUrl;
-      }
-      case 'twitch': {
-        const channelMatch = videoUrl.match(/(?:twitch\.tv\/)(\w+)/);
-        if (channelMatch) return `https://player.twitch.tv/?channel=${channelMatch[1]}&parent=localhost`;
-        const videoMatch = videoUrl.match(/(?:twitch\.tv\/videos\/)(\d+)/);
-        if (videoMatch) return `https://player.twitch.tv/?video=${videoMatch[1]}&parent=localhost`;
-        return videoUrl;
-      }
-      case 'web':
-        return videoUrl;
-      default:
-        return videoUrl;
-    }
-  }, [platform, videoUrl]);
-
   useEffect(() => {
     if (platform !== 'youtube' || !videoUrl) return;
 
@@ -74,9 +101,7 @@ export default function VideoPlayer({
     if (!container) return;
 
     const tryInitPlayer = () => {
-      if (!window.YT || !window.YT.Player) {
-        return;
-      }
+      if (!window.YT || !window.YT.Player) return;
 
       if (playerRef.current) {
         playerRef.current.destroy();
@@ -94,11 +119,7 @@ export default function VideoPlayer({
       playerRef.current = new window.YT.Player(el.id, {
         videoId,
         playerVars: {
-          autoplay: 0,
-          controls: 1,
-          rel: 0,
-          enablejsapi: 1,
-          modestbranding: 1,
+          autoplay: 0, controls: 1, rel: 0, enablejsapi: 1, modestbranding: 1,
         },
         events: {
           onReady: () => {
@@ -141,11 +162,7 @@ export default function VideoPlayer({
     const player = playerRef.current;
     if (!player || !player.playVideo) return;
     isExternalAdjustment.current += 1;
-    if (isPlaying) {
-      player.playVideo();
-    } else {
-      player.pauseVideo();
-    }
+    if (isPlaying) { player.playVideo(); } else { player.pauseVideo(); }
   }, [isPlaying]);
 
   useEffect(() => {
@@ -158,17 +175,13 @@ export default function VideoPlayer({
   useEffect(() => {
     if (platform !== 'youtube') return;
     const interval = setInterval(() => {
-      const player = playerRef.current;
-      if (player && player.getCurrentTime) {
-        onTimeUpdateRef.current?.(player.getCurrentTime());
-      }
+      const p = playerRef.current;
+      if (p && p.getCurrentTime) onTimeUpdateRef.current?.(p.getCurrentTime());
     }, 1000);
     return () => clearInterval(interval);
   }, [platform]);
 
-  const embedUrl = getEmbedUrl();
-
-  if (!embedUrl) {
+  if (!videoUrl) {
     return (
       <Box sx={{
         width: '100%', aspectRatio: '16/9', bgcolor: '#000',
@@ -182,14 +195,20 @@ export default function VideoPlayer({
 
   if (platform === 'youtube') {
     return (
-      <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', borderRadius: 1, overflow: 'hidden', position: 'relative' }}>
+      <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#0a0a14', borderRadius: 1, overflow: 'hidden', position: 'relative' }}>
         <Box ref={containerRef} sx={{ width: '100%', height: '100%', position: 'relative' }} />
       </Box>
     );
   }
 
+  const embedUrl = getPlatformUrl(platform, videoUrl);
+
+  if (!embedUrl) {
+    return <ExtractPlaceholder platform={platform} videoUrl={videoUrl} />;
+  }
+
   return (
-    <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', borderRadius: 1, overflow: 'hidden' }}>
+    <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#0a0a14', borderRadius: 1, overflow: 'hidden' }}>
       <iframe
         ref={iframeRef}
         src={embedUrl}

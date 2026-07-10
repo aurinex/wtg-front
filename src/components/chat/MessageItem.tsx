@@ -9,6 +9,8 @@ const emojis = [
   { key: 'poop', src: '/emoji/poop.png' },
 ];
 
+const SWIPE_THRESHOLD = 65;
+
 interface Props {
   message: Message;
   currentUserId: string;
@@ -18,21 +20,28 @@ interface Props {
 }
 
 export default function MessageItem({ message, currentUserId, onReply, onReact, repliedMessage }: Props) {
-  const [swiped, setSwiped] = useState(false);
+  const [translateX, setTranslateX] = useState(0);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const touchStart = useRef(0);
+  const touchStartX = useRef(0);
+  const dragging = useRef(false);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStart.current = e.touches[0].clientX;
+    touchStartX.current = e.touches[0].clientX;
+    dragging.current = false;
+    setTranslateX(0);
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const dx = touchStart.current - e.changedTouches[0].clientX;
-    if (dx > 60) {
-      setSwiped(true);
-      onReply(message);
-      setTimeout(() => setSwiped(false), 500);
-    }
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const dx = touchStartX.current - e.touches[0].clientX;
+    if (!dragging.current && Math.abs(dx) > 5) dragging.current = true;
+    if (!dragging.current) return;
+    setTranslateX(Math.max(-20, Math.min(dx, 100)));
+  };
+
+  const handleTouchEnd = () => {
+    if (translateX > SWIPE_THRESHOLD) onReply(message);
+    setTranslateX(0);
+    dragging.current = false;
   };
 
   const reactionCounts: Record<string, number> = {};
@@ -52,12 +61,14 @@ export default function MessageItem({ message, currentUserId, onReply, onReact, 
   return (
     <Box
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       sx={{
         display: 'flex', gap: 1.5, px: 2, py: 1,
-        transform: swiped ? 'translateX(-60px)' : 'none',
-        transition: 'transform 0.2s',
-        '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' },
+        transform: `translateX(${-translateX}px)`,
+        transition: dragging.current ? 'none' : 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        bgcolor: translateX > SWIPE_THRESHOLD ? 'rgba(124,77,255,0.08)' : 'transparent',
+        '&:hover': { background: 'linear-gradient(45deg, rgba(255, 255, 255, 0.07), rgba(255,255,255,0))' },
       }}
     >
       <Avatar src={message.avatar_url || undefined} sx={{ width: 32, height: 32, mt: 0.3 }}>
@@ -74,7 +85,7 @@ export default function MessageItem({ message, currentUserId, onReply, onReact, 
         </Box>
         {repliedMessage && (
           <Typography variant="caption" color="text.disabled" sx={{ display: 'block', fontStyle: 'italic' }} noWrap>
-            ↑ {repliedMessage.username}: {repliedMessage.content}
+            &uarr; {repliedMessage.username}: {repliedMessage.content}
           </Typography>
         )}
         <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>

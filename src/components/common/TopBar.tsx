@@ -1,5 +1,5 @@
 import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Icon from './Icon';
 
 interface TopBarProps {
   title?: string;
@@ -13,7 +13,7 @@ export default function TopBar({ title, onBack, rightAction }: TopBarProps) {
       <Toolbar sx={{ minHeight: 56, px: 2 }}>
         {onBack && (
           <IconButton edge="start" onClick={onBack} sx={{ mr: 1 }}>
-            <ArrowBackIcon />
+            <Icon name="arrow_back_two" size={16} />
           </IconButton>
         )}
         <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600 }}>

@@ -56,6 +56,7 @@ export default function PlatformPicker({ onSelect }: Props) {
             },
             '&:active': { transform: 'scale(0.97)' },
             userSelect: 'none',
+            py: 1,
           }}
         >
             <Box
@@ -63,7 +64,7 @@ export default function PlatformPicker({ onSelect }: Props) {
               src={p.icon}
               alt={p.id}
               sx={{
-                width: 48, height: 48,
+                width: 44, height: 44,
                 objectFit: 'contain',
                 filter: p.id === 'web' ? 'brightness(0) invert(1)' : 'none',
               }}

@@ -5,8 +5,7 @@ import {
   DialogContent, DialogActions, ToggleButtonGroup, ToggleButton,
   List, ListItemButton, ListItemAvatar, ListItemText,
 } from '@mui/material';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
-import PeopleIcon from '@mui/icons-material/People';
+import Icon from '../components/common/Icon';
 import ProtectedLayout from '../components/common/ProtectedLayout';
 import TopBar from '../components/common/TopBar';
 import { useAuthStore } from '../store/authStore';
@@ -72,7 +71,7 @@ export default function Profile() {
               }}
               onClick={() => fileInputRef.current?.click()}
             >
-              <PhotoCameraIcon sx={{ fontSize: 16 }} />
+              <Icon name="upload" size={24} sx={{ opacity: 0.85, p: 0.5 }} />
             </Box>
           </Box>
           <input ref={fileInputRef} type="file" hidden accept="image/*" onChange={handleAvatarChange} />
@@ -103,7 +102,7 @@ export default function Profile() {
             <ListItemButton onClick={() => navigate('/friends')} sx={{ py: 1.5 }}>
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: 'primary.main' }}>
-                  <PeopleIcon />
+                  <Icon name="friends" size={20} />
                 </Avatar>
               </ListItemAvatar>
               <ListItemText
@@ -131,8 +130,11 @@ export default function Profile() {
               },
             }}
           >
-            <ToggleButton value="en">{t('lang.en')}</ToggleButton>
-            <ToggleButton value="ru">{t('lang.ru')}</ToggleButton>
+            <Box sx={{ display: 'flex', width: '100%', gap: 2}}>
+              <ToggleButton value="en">{t('lang.en')}</ToggleButton>
+              <ToggleButton value="ru">{t('lang.ru')}</ToggleButton>
+            </Box>
+            
           </ToggleButtonGroup>
         </Paper>
 

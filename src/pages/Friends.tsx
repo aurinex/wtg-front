@@ -3,11 +3,8 @@ import {
   Box, Typography, Paper, List, ListItem, Avatar, ListItemText, IconButton,
   Button, TextField, Tabs, Tab,
 } from '@mui/material';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
-import DeleteIcon from '@mui/icons-material/Delete';
 import ProtectedLayout from '../components/common/ProtectedLayout';
+import Icon from '../components/common/Icon';
 import TopBar from '../components/common/TopBar';
 import { getFriends, getIncomingRequests, sendFriendRequest, acceptRequest, rejectRequest, removeFriend } from '../api/friends';
 import { searchUsers } from '../api/users';
@@ -95,7 +92,7 @@ export default function Friends() {
                   <ListItem
                     secondaryAction={
                       <IconButton onClick={() => handleRemove(f.id)} size="small">
-                        <DeleteIcon fontSize="small" />
+                        <Icon name="delete" size={18} sx={{ opacity: 0.45 }} />
                       </IconButton>
                     }
                   >
@@ -124,10 +121,10 @@ export default function Friends() {
                     secondaryAction={
                       <Box sx={{ display: 'flex', gap: 0.5 }}>
                         <IconButton onClick={() => handleAccept(r.id)} size="small" color="primary">
-                          <CheckIcon />
+                          <Icon name="done" size={18} sx={{ opacity: 0.8 }} />
                         </IconButton>
                         <IconButton onClick={() => handleReject(r.id)} size="small" color="error">
-                          <CloseIcon />
+                          <Icon name="close" size={18} sx={{ opacity: 0.6 }} />
                         </IconButton>
                       </Box>
                     }
@@ -164,7 +161,7 @@ export default function Friends() {
                       <Button
                         size="small" variant="outlined"
                         onClick={() => handleSendRequest(u.id)}
-                        startIcon={<PersonAddIcon />}
+                        startIcon={<Icon name="person_add" size={18} />}
                         sx={{ borderRadius: 3 }}
                       >
                         {t('friends.add')}

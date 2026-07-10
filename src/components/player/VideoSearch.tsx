@@ -3,9 +3,7 @@ import {
   Box, TextField, Typography, Card, CardMedia, CardContent, Chip,
   InputAdornment, Skeleton,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Icon from '../common/Icon';
 import { searchVideos, type SearchResult } from '../../api/search';
 import { useTranslation } from '../../utils/i18n';
 
@@ -61,7 +59,7 @@ export default function VideoSearch({ platform, onSelect, onBack }: Props) {
           onClick={onBack}
           sx={{ display: 'flex', cursor: 'pointer', p: 0.5, borderRadius: 1, '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' } }}
         >
-          <ArrowBackIcon />
+          <Icon name="arrow_back_two" size={14} />
         </Box>
         <TextField
           inputRef={inputRef}
@@ -73,7 +71,7 @@ export default function VideoSearch({ platform, onSelect, onBack }: Props) {
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
+                  <Icon name="search" size={16} sx={{ opacity: 0.4 }} />
                 </InputAdornment>
               ),
             },
@@ -99,7 +97,7 @@ export default function VideoSearch({ platform, onSelect, onBack }: Props) {
       )}
 
       {!loading && !searched && !query.trim() && (
-        <Typography color="text.disabled" textAlign="center" mt={4} variant="body2">
+        <Typography color="text.disabled" textAlign="center" mt={2} variant="body2">
           Search for videos on {platform}
         </Typography>
       )}
@@ -125,7 +123,7 @@ export default function VideoSearch({ platform, onSelect, onBack }: Props) {
             />
             {video.duration > 0 && (
               <Chip
-                icon={<AccessTimeIcon sx={{ fontSize: 11 }} />}
+                icon={<Icon name="access_time" size={10} sx={{ opacity: 0.5 }} />}
                 label={formatDuration(video.duration)}
                 size="small"
                 sx={{
