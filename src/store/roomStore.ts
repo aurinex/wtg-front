@@ -8,6 +8,7 @@ interface RoomState {
   setMessages: (messages: Message[]) => void;
   addMessage: (msg: Message) => void;
   updateReaction: (messageId: string, reactions: Record<string, string>) => void;
+  clearRoom: () => void;
 }
 
 export const useRoomStore = create<RoomState>((set) => ({
@@ -22,4 +23,5 @@ export const useRoomStore = create<RoomState>((set) => ({
         m.id === messageId ? { ...m, reactions } : m
       ),
     })),
+  clearRoom: () => set({ currentRoom: null, messages: [] }),
 }));

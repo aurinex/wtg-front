@@ -46,20 +46,26 @@ export default function ChatBox({ messages, currentUserId, onSend, onReact, onSe
           '&::-webkit-scrollbar-thumb': { bgcolor: 'divider', borderRadius: 2 },
         }}
       >
-        {messages.length === 0 ? (
+          {messages.length === 0 ? (
           <Box sx={{ textAlign: 'center', mt: 4, color: 'text.disabled' }}>
             <Typography variant="body2">{t('chat.no_messages')}</Typography>
           </Box>
         ) : (
-          messages.map((msg) => (
-            <MessageItem
-              key={msg.id}
-              message={msg}
-              currentUserId={currentUserId}
-              onReply={handleReply}
-              onReact={onReact}
-            />
-          ))
+          messages.map((msg) => {
+            const repliedMessage = msg.reply_to
+              ? messages.find((m) => m.id === msg.reply_to)
+              : null;
+            return (
+              <MessageItem
+                key={msg.id}
+                message={msg}
+                repliedMessage={repliedMessage}
+                currentUserId={currentUserId}
+                onReply={handleReply}
+                onReact={onReact}
+              />
+            );
+          })
         )}
         <div ref={bottomRef} />
       </Box>

@@ -9,7 +9,7 @@ interface Props {
   currentTime: number;
   onTimeUpdate?: (time: number) => void;
   onPlay?: () => void;
-  onPause?: () => void;
+  onPause?: (time: number) => void;
   onSeek?: (time: number) => void;
   onReady?: () => void;
 }
@@ -20,7 +20,21 @@ export default function VideoPlayer({
 }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
+
+  const onPlayRef = useRef(onPlay);
+  const onPauseRef = useRef(onPause);
+  const onSeekRef = useRef(onSeek);
+  const onTimeUpdateRef = useRef(onTimeUpdate);
+  const onReadyRef = useRef(onReady);
+  const isExternalAdjustment = useRef(0);
+
+  onPlayRef.current = onPlay;
+  onPauseRef.current = onPause;
+  onSeekRef.current = onSeek;
+  onTimeUpdateRef.current = onTimeUpdate;
+  onReadyRef.current = onReady;
 
   const getEmbedUrl = useCallback(() => {
     if (!videoUrl) return '';
@@ -54,18 +68,103 @@ export default function VideoPlayer({
   }, [platform, videoUrl]);
 
   useEffect(() => {
-    if (platform === 'youtube' && window.YT && window.YT.Player) {
-      playerRef.current = new window.YT.Player('youtube-player', {
+    if (platform !== 'youtube' || !videoUrl) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const tryInitPlayer = () => {
+      if (!window.YT || !window.YT.Player) {
+        return;
+      }
+
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
+
+      const el = document.createElement('div');
+      el.id = 'youtube-player';
+      container.innerHTML = '';
+      container.appendChild(el);
+
+      const ytMatch = videoUrl.match(/(?:v=|\/)([\w-]{11})/);
+      const videoId = ytMatch ? ytMatch[1] : '';
+
+      playerRef.current = new window.YT.Player(el.id, {
+        videoId,
+        playerVars: {
+          autoplay: 0,
+          controls: 1,
+          rel: 0,
+          enablejsapi: 1,
+          modestbranding: 1,
+        },
         events: {
-          onReady: () => onReady?.(),
+          onReady: () => {
+            const iframe = container.querySelector('iframe');
+            if (iframe) {
+              iframe.style.width = '100%';
+              iframe.style.height = '100%';
+              iframe.style.position = 'absolute';
+              iframe.style.top = '0';
+              iframe.style.left = '0';
+            }
+            onReadyRef.current?.();
+          },
           onStateChange: (e: any) => {
-            if (e.data === window.YT.PlayerState.PLAYING) onPlay?.();
-            if (e.data === window.YT.PlayerState.PAUSED) onPause?.();
+            if (isExternalAdjustment.current > 0) {
+              isExternalAdjustment.current -= 1;
+              return;
+            }
+            if (e.data === window.YT.PlayerState.PLAYING) {
+              onPlayRef.current?.();
+            } else if (e.data === window.YT.PlayerState.PAUSED) {
+              onPauseRef.current?.(playerRef.current?.getCurrentTime() ?? 0);
+            }
           },
         },
       });
-    }
+    };
+
+    tryInitPlayer();
+
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
+    };
   }, [platform, videoUrl]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !player.playVideo) return;
+    isExternalAdjustment.current += 1;
+    if (isPlaying) {
+      player.playVideo();
+    } else {
+      player.pauseVideo();
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !player.seekTo || currentTime <= 0) return;
+    isExternalAdjustment.current += 1;
+    player.seekTo(currentTime, true);
+  }, [currentTime]);
+
+  useEffect(() => {
+    if (platform !== 'youtube') return;
+    const interval = setInterval(() => {
+      const player = playerRef.current;
+      if (player && player.getCurrentTime) {
+        onTimeUpdateRef.current?.(player.getCurrentTime());
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [platform]);
 
   const embedUrl = getEmbedUrl();
 
@@ -81,39 +180,23 @@ export default function VideoPlayer({
     );
   }
 
-  if (platform === 'web') {
+  if (platform === 'youtube') {
     return (
-      <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', borderRadius: 1, overflow: 'hidden' }}>
-        <iframe
-          ref={iframeRef}
-          src={embedUrl}
-          style={{ width: '100%', height: '100%', border: 'none' }}
-          allow="autoplay; fullscreen"
-          allowFullScreen
-        />
+      <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', borderRadius: 1, overflow: 'hidden', position: 'relative' }}>
+        <Box ref={containerRef} sx={{ width: '100%', height: '100%', position: 'relative' }} />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', borderRadius: 1, overflow: 'hidden', }}>
-      {platform === 'youtube' ? (
-        <iframe
-          id="youtube-player"
-          src={embedUrl}
-          style={{ width: '100%', height: '100%', border: 'none' }}
-          allow="autoplay; encrypted-media; fullscreen"
-          allowFullScreen
-        />
-      ) : (
-        <iframe
-          ref={iframeRef}
-          src={embedUrl}
-          style={{ width: '100%', height: '100%', border: 'none' }}
-          allow="autoplay; fullscreen"
-          allowFullScreen
-        />
-      )}
+    <Box sx={{ width: '100%', aspectRatio: '16/9', bgcolor: '#000', borderRadius: 1, overflow: 'hidden' }}>
+      <iframe
+        ref={iframeRef}
+        src={embedUrl}
+        style={{ width: '100%', height: '100%', border: 'none' }}
+        allow="autoplay; encrypted-media; fullscreen"
+        allowFullScreen
+      />
     </Box>
   );
 }

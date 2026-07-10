@@ -14,9 +14,10 @@ interface Props {
   currentUserId: string;
   onReply: (msg: Message) => void;
   onReact: (messageId: string, reaction: string) => void;
+  repliedMessage?: Message | null;
 }
 
-export default function MessageItem({ message, currentUserId, onReply, onReact }: Props) {
+export default function MessageItem({ message, currentUserId, onReply, onReact, repliedMessage }: Props) {
   const [swiped, setSwiped] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const touchStart = useRef(0);
@@ -71,9 +72,9 @@ export default function MessageItem({ message, currentUserId, onReply, onReact }
             {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Typography>
         </Box>
-        {message.reply_to && (
-          <Typography variant="caption" color="text.disabled" sx={{ display: 'block', fontStyle: 'italic' }}>
-            Replying to a message
+        {repliedMessage && (
+          <Typography variant="caption" color="text.disabled" sx={{ display: 'block', fontStyle: 'italic' }} noWrap>
+            ↑ {repliedMessage.username}: {repliedMessage.content}
           </Typography>
         )}
         <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
