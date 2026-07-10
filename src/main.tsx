@@ -74,11 +74,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <GlobalStyles styles={{
+        {/* <GlobalStyles styles={{
           html: { overflow: 'hidden', height: '100%' },
           body: { overflow: 'hidden', height: '100%' },
           '#root': { height: '100%', overflow: 'hidden' },
-        }} />
+        }} /> */}
         <App />
       </ThemeProvider>
     </BrowserRouter>
