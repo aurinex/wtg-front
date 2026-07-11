@@ -98,7 +98,7 @@ const translations: Record<Lang, Record<string, string>> = {
     'friends.tab_add': 'Добавить',
     'friends.no_friends': 'Пока нет друзей',
     'friends.no_requests': 'Нет активных заявок',
-    'friends.wants_friends': 'Хочет добавиться в друзья',
+    'friends.wants_friends': 'Новая заявка в друзья',
     'friends.search': 'Поиск пользователей...',
     'friends.add': 'Добавить',
     'friends.no_users': 'Пользователи не найдены',

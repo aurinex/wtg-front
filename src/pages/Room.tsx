@@ -87,14 +87,16 @@ export default function Room() {
   }, [code]);
 
   const handleLocalPlay = useCallback(() => {
+    if (currentRoom) setRoom({ ...currentRoom, is_playing: true });
     const now = Date.now() / 1000;
     const curTime = currentRoom?.current_time ?? 0;
     sendSync({ action: 'play', timestamp: now, current_time: curTime });
-  }, [sendSync, currentRoom]);
+  }, [sendSync, currentRoom, setRoom]);
 
   const handleLocalPause = useCallback((time: number) => {
+    if (currentRoom) setRoom({ ...currentRoom, is_playing: false, current_time: time });
     sendSync({ action: 'pause', current_time: time });
-  }, [sendSync]);
+  }, [sendSync, currentRoom, setRoom]);
 
   const handleLocalSeek = useCallback((time: number) => {
     sendSync({ action: 'seek', current_time: time });
@@ -180,10 +182,29 @@ export default function Room() {
     navigate('/');
   };
 
+  const copyText = (text: string) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  };
+
+  const fallbackCopy = (text: string) => {
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.style.position = 'fixed';
+    el.style.opacity = '0';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  };
+
   const handleCopyCode = () => {
     const c = codeRef.current;
     if (c) {
-      navigator.clipboard.writeText(c);
+      copyText(c);
       setSnackbar(t('room.copied'));
       setTimeout(() => setSnackbar(''), 2000);
     }
@@ -208,13 +229,13 @@ export default function Room() {
             />
             <IconButton
               size="small"
-              onClick={async () => {
+              onClick={() => {
                 const url = `${window.location.origin}/room/${code}`;
-                if (navigator.share) {
-                  try { await navigator.share({ title: 'RaveClone', url }); }
-                  catch { /* user cancelled */ }
+                const shareData = { title: currentRoom.name, text: url, url };
+                if (navigator.canShare && navigator.canShare(shareData)) {
+                  navigator.share(shareData).catch(() => {});
                 } else {
-                  await navigator.clipboard.writeText(url);
+                  copyText(url);
                   setSnackbar(t('room.copied'));
                   setTimeout(() => setSnackbar(''), 2000);
                 }
@@ -233,8 +254,8 @@ export default function Room() {
               <Box sx={{ flex: 1 }}>
                 <VideoInput onSend={handleSelectVideo} />
               </Box>
-              <IconButton onClick={handleStopVideo} size="small" sx={{ bgcolor: 'rgba(255,255,255,0.06)', borderRadius: 2 }}>
-                <Icon name="stop" size={20} />
+              <IconButton onClick={handleStopVideo} size="small" sx={{ bgcolor: 'rgba(255,255,255,0.06)', borderRadius: 2, p: 1.5 }}>
+                <Icon name="stop" size={16} />
               </IconButton>
             </Box>
             <CustomVideoPlayer
@@ -264,7 +285,7 @@ export default function Room() {
         )}
       </Box>
 
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+      <Box sx={{ flex: '1 1 0', minHeight: 40, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <ChatBox
           messages={messages}
           currentUserId={user.id}
@@ -336,10 +357,10 @@ export default function Room() {
             <Button
               size="small"
               variant="outlined"
-              startIcon={bookmarkletCopied ? <Icon name="done" size={18} /> : <Icon name="bookmark" size={18} />}
+              startIcon={bookmarkletCopied ? <Icon name="check" size={12} sx={{ opacity: 0.7 }} /> : <Icon name="copy" size={12} sx={{ opacity: 0.7 }} />}
               onClick={() => {
                 const bm = `javascript:(function(){var u=location.href;var m=u.match(/(?:v=|\\/)([\\w-]{11})/);var c='${code}';if(c&&m){location.href='${window.location.origin}/room/'+c+'?url='+encodeURIComponent('https://youtube.com/watch?v='+m[1])}else if(c){location.href='${window.location.origin}/room/'+c+'?url='+encodeURIComponent(u)}})()`;
-                navigator.clipboard.writeText(bm);
+                fallbackCopy(bm);
                 setBookmarkletCopied(true);
                 setTimeout(() => setBookmarkletCopied(false), 2000);
               }}
@@ -354,10 +375,10 @@ export default function Room() {
           </Typography>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button onClick={handleLeave} color="error" variant="outlined" sx={{ flex: 1 }}>
+            <Button onClick={handleLeave} color="error" variant="outlined" sx={{ flex: 1, borderRadius: '16px 8px 8px 16px' }}>
               {t('room.leave')}
             </Button>
-            <Button onClick={handleSaveSettings} variant="contained" sx={{ flex: 1 }}>
+            <Button onClick={handleSaveSettings} variant="contained" sx={{ flex: 1, borderRadius: '8px 16px 16px 8px' }}>
               {t('room.save')}
             </Button>
           </Box>

@@ -56,12 +56,12 @@ export default function ChatBox({ messages, currentUserId, onSend, onReact, onSe
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: 'background.paper' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: 'background.paper', overflow: 'hidden' }}>
       <Box
         ref={containerRef}
         onScroll={handleScroll}
         sx={{
-          flex: 1, overflowY: 'auto', py: 1, display: 'flex', flexDirection: 'column',
+          flex: '1 1 0', minHeight: 0, overflowY: 'auto', py: 1, display: 'flex', flexDirection: 'column',
           '&::-webkit-scrollbar': { width: 4 },
           '&::-webkit-scrollbar-thumb': { bgcolor: 'divider', borderRadius: 2 },
         }}
@@ -93,7 +93,7 @@ export default function ChatBox({ messages, currentUserId, onSend, onReact, onSe
 
       {replyTo && (
         <Box sx={{
-          display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.8,
+          display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.8, flexShrink: 0,
           bgcolor: 'rgba(124,77,255,0.08)', borderTop: '1px solid', borderColor: 'divider',
         }}>
           <Avatar src={replyTo.avatar_url || undefined} sx={{ width: 24, height: 24 }}>
@@ -114,9 +114,8 @@ export default function ChatBox({ messages, currentUserId, onSend, onReact, onSe
       )}
 
       <Box sx={{
-        px: 1.5, py: 2, bgcolor: 'background.default',
+        px: 1.5, py: 2, bgcolor: 'background.default', flexShrink: 0,
         display: 'flex', gap: 1, alignItems: 'center', borderRadius: replyTo ? "0" : "24px 24px 0 0",
-        transition: 'all 0.2s ease',
       }}>
         <IconButton
           onClick={onSettingsOpen}

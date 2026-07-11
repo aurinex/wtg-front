@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, TextField, Typography, Card, CardMedia, CardContent, Chip,
@@ -29,16 +29,19 @@ function RoomCard({ room, onClick }: { room: Room; onClick: () => void }) {
       }}
     >
       <Box sx={{ position: 'relative' }}>
-        <CardMedia
-          component="img"
-          height={140}
-          image={room.video_thumbnail || '/placeholder.png'}
-          alt={room.video_title}
-          sx={{ bgcolor: '#1a1a2e', objectFit: 'cover', border: '1px solid transparent' }}
-        />
+        <Box sx={{ height: 140, bgcolor: '#0d0d1a', position: 'relative', overflow: 'hidden' }}>
+          {room.video_url && (
+            <Box
+              component="img"
+              src={room.video_thumbnail || '/placeholder.png'}
+              alt={room.video_title}
+              sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          )}
+        </Box>
         {room.video_duration > 0 && (
           <Chip
-            icon={<Icon name="access_time" size={12} sx={{ opacity: 0.5 }} />}
+            icon={<Icon name="access_time" size={12} sx={{ ml: 1, opacity: 0.5 }} />}
             label={formatDuration(room.video_duration)}
             size="small"
             sx={{
@@ -81,21 +84,24 @@ export default function Main() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const initial = useRef(true);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const fetchRooms = async (q?: string) => {
-    setLoading(true);
+    if (initial.current) setLoading(true);
     try {
       const res = await listRooms(q || undefined);
       setRooms(res.data);
     } catch { /* ignore */ }
     setLoading(false);
+    initial.current = false;
   };
 
   useEffect(() => { fetchRooms(); }, []);
 
   useEffect(() => {
+    if (initial.current) return;
     const timer = setTimeout(() => fetchRooms(search), 400);
     return () => clearTimeout(timer);
   }, [search]);

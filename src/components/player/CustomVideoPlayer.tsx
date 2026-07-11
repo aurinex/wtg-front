@@ -154,8 +154,7 @@ export default function CustomVideoPlayer({
         src={directUrl}
         preload="metadata"
         playsInline
-        style={{ width: '100%', height: '100%', display: 'block', cursor: 'pointer' }}
-        onClick={() => (videoRef.current?.paused ? handlePlay() : handlePause())}
+        style={{ width: '100%', height: '100%', display: 'block' }}
         onTimeUpdate={handleTimeUpdate}
         onPlay={handlePlay}
         onPause={handlePause}
@@ -186,7 +185,7 @@ export default function CustomVideoPlayer({
             transition: 'transform 0.15s',
             '&:hover': { transform: 'scale(1.1)' },
           }}>
-            <Box sx={{ width: 0, height: 0, borderStyle: 'solid', borderWidth: '12px 0 12px 20px', borderColor: 'transparent transparent transparent white', ml: 1 }} />
+            <Box sx={{ width: 0, height: 0, borderStyle: 'solid', borderWidth: '12px 0 12px 20px', borderColor: 'transparent transparent transparent white', ml: "6px" }} />
           </Box>
         </Box>
       )}

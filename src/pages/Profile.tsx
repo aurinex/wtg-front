@@ -71,7 +71,7 @@ export default function Profile() {
               }}
               onClick={() => fileInputRef.current?.click()}
             >
-              <Icon name="upload" size={24} sx={{ opacity: 0.85, p: 0.5 }} />
+              <Icon name="upload" size={16} sx={{ opacity: 0.85, m: 0.5 }} />
             </Box>
           </Box>
           <input ref={fileInputRef} type="file" hidden accept="image/*" onChange={handleAvatarChange} />

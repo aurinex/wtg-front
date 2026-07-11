@@ -112,7 +112,7 @@ export default function CustomVideoControls({
   const progress = duration > 0 ? ((dragging ? dragValue : currentTime) / duration) * 100 : 0;
   const bufferedPct = duration > 0 ? (buffered / duration) * 100 : 0;
 
-  const volIconName = muted || volume === 0 ? 'volume_off' : volume < 0.5 ? 'volume_down' : 'volume_up';
+  const volIconName = muted || volume === 0 ? 'volume_down' : volume < 0.5 ? 'volume_off' : 'volume_up';
 
   return (
     <>
@@ -144,7 +144,7 @@ export default function CustomVideoControls({
       sx={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
         background: 'linear-gradient(transparent, rgba(0,0,0,0.85))',
-        pt: 4, px: { xs: 1, sm: 2 }, pb: { xs: 0.5, sm: 1.5 },
+        pt: 4, px: { xs: 1, sm: 2 }, pb: { xs: 1.5, sm: 1.5 },
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.3s',
         cursor: 'default',
@@ -181,7 +181,7 @@ export default function CustomVideoControls({
           onClick={() => (playing ? onPause() : onPlay())}
           sx={{ color: 'white', p: { xs: 0.75, sm: 0.5 } }}
         >
-          {playing ? <Icon name="pause" size={24} /> : <Icon name="play_arrow" size={24} />}
+          {playing ? <Icon name="pause" size={14} /> : <Icon name="play_arrow" size={14} />}
         </IconButton>
 
         <Typography variant="caption" sx={{ color: 'white', fontSize: { xs: 10, sm: 11 }, minWidth: 36, fontFamily: 'monospace' }}>
@@ -195,7 +195,7 @@ export default function CustomVideoControls({
         <Box sx={{ flex: 1 }} />
 
         <IconButton size="small" onClick={toggleMute} sx={{ color: 'white', p: { xs: 0.75, sm: 0.5 } }}>
-          <Icon name={volIconName} size={20} />
+          <Icon name={volIconName} size={18} />
         </IconButton>
 
         <Slider
@@ -220,7 +220,7 @@ export default function CustomVideoControls({
         )}
 
         <IconButton size="small" onClick={toggleFullscreen} sx={{ color: 'white', p: { xs: 0.75, sm: 0.5 } }}>
-          {fullscreen ? <Icon name="shrink" size={20} /> : <Icon name="expand" size={20} />}
+          {fullscreen ? <Icon name="shrink" size={14} /> : <Icon name="expand" size={14} />}
         </IconButton>
       </Box>
     </Box>

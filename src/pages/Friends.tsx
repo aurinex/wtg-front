@@ -92,7 +92,7 @@ export default function Friends() {
                   <ListItem
                     secondaryAction={
                       <IconButton onClick={() => handleRemove(f.id)} size="small">
-                        <Icon name="delete" size={18} sx={{ opacity: 0.45 }} />
+                        <Icon name="close" size={16} sx={{ mr: 1, color: "error.main", opacity: 0.45 }} />
                       </IconButton>
                     }
                   >
@@ -119,12 +119,12 @@ export default function Friends() {
                 <Paper key={r.id} sx={{ mb: 1, borderRadius: 3 }}>
                   <ListItem
                     secondaryAction={
-                      <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        <IconButton onClick={() => handleAccept(r.id)} size="small" color="primary">
-                          <Icon name="done" size={18} sx={{ opacity: 0.8 }} />
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <IconButton onClick={() => handleAccept(r.id)} size="small">
+                          <Icon name="check" size={18} sx={{ color: 'success.main', opacity: 0.8 }} />
                         </IconButton>
-                        <IconButton onClick={() => handleReject(r.id)} size="small" color="error">
-                          <Icon name="close" size={18} sx={{ opacity: 0.6 }} />
+                        <IconButton onClick={() => handleReject(r.id)} size="small">
+                          <Icon name="close" size={16} sx={{ color: 'error.main', opacity: 0.6 }} />
                         </IconButton>
                       </Box>
                     }
